@@ -19,7 +19,7 @@ void initsrf05() {
 	echo = 0;
 }
 
-double pulseIn() {
+double pulseIn() {							//ham tra ve thoi gian song bat dau phat di va nhan lai
 	unsigned int time;
 	trig = 0;
 	__delay_ms(100);

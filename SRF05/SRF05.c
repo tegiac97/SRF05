@@ -57,13 +57,13 @@ int main() {
 	char temp[30];
 	while (1) {
 		initsrf05();
-		time = pulseIn();
-		distance = time * 340 * 100 / 62500;
+		time = pulseIn();								//tra ve thoi gian song phat ra den khi nhan lai
+		distance = time * 340 * 100 / 62500;			
 		Lcd_Clear();
 		Lcd_Set_Cursor(1, 1);
 		Lcd_Write_String("Distance: ");
 		Lcd_Set_Cursor(2, 1);
-		sprintf(temp, "%.1f", distance);
+		sprintf(temp, "%.1f cm", distance);
 		Lcd_Write_String(temp);
 		printf("Distance: %.1f cm\n\r", distance);
 		__delay_ms(100);
