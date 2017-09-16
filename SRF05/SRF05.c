@@ -7,7 +7,7 @@
 // FWDT
 #pragma config FWPSB = WDTPSB_16        // WDT Prescaler B (1:16)
 #pragma config FWPSA = WDTPSA_512       // WDT Prescaler A (1:512)
-#pragma config WDT = WDT_OFF             // Watchdog Timer (Enabled)
+#pragma config WDT = WDT_OFF            // Watchdog Timer (Disable)
 
 // FBORPOR
 #pragma config FPWRT = PWRT_64          // POR Timer Value (64ms)
@@ -42,56 +42,82 @@
 #define FCY 2000000UL
 #define trig LATDbits.LATD9
 #define echo PORTDbits.RD8
-#include <xc.h>
 
 #include"lcd.h"
-#include<p30f6010a.h>
-#include<libpic30.h>
-#include<stdio.h>
 #include"uart.h"
-
-unsigned int time1=0,time2=0;
-double dis;
-char led[30];
+#include"srf05.h"
 
 
-void initTimer() {
-	T3CON = 0;
-	T3CONbits.TCKPS = 10;
-	PR3 = 20000;
-	IEC0bits.T3IE = 1;
-	T3CONbits.TON = 1;
-}
 int main() {
-	unsigned int a;
+	enableUART1(1, 0, 0, 1, 12);
 	TRISD = 0x00;
 	Lcd_Init();
-	initTimer();
-	TRISDbits.TRISD8 = 1;
-    TRISDbits.TRISD9=0;
-    trig=0;
-    echo=0;
-	enableUART1(1, 0, 0, 1, 12);
-	while (1)
-	{
-        trig=0;
-        __delay_ms(100);
-        T1CONbits.TON = 1;
-        trig=1;
-        __delay_us(5);
-        trig=0;
-        while(echo==0) TMR3 = 0;
-        while(echo==1) ;
-        time2 = TMR3;
-        __delay_ms(100);
-		T1CONbits.TON = 0;
-		dis = ((double)time2*340*100/62500);
-        time2=0;
-        printf("Distance: %.1f cm\n\r", dis);
+	float time;
+	double distance;
+	char temp[30];
+	while (1) {
+		initsrf05();
+		time = pulseIn();
+		distance = time * 340 * 100 / 62500;
 		Lcd_Clear();
 		Lcd_Set_Cursor(1, 1);
-		Lcd_Write_String(led);
-		sprintf(led, "Distance: %.1f cm", dis);
-		__delay_ms(200);
+		Lcd_Write_String("Distance: ");
+		Lcd_Set_Cursor(2, 1);
+		sprintf(temp, "%.1f", distance);
+		Lcd_Write_String(temp);
+		printf("Distance: %.1f cm\n\r", distance);
+		__delay_ms(100);
 	}
 }
+
+
+
+
+
+
+//
+//unsigned int time1=0,time2=0;
+//double dis;
+//char led[30];
+//
+//
+//void initTimer() {
+//	T3CON = 0;
+//	T3CONbits.TCKPS = 10;
+//	PR3 = 20000;
+//	IEC0bits.T3IE = 1;
+//	T3CONbits.TON = 1;
+//}
+//int main() {
+//	unsigned int a;
+//	TRISD = 0x00;
+//	Lcd_Init();
+//	initTimer();
+//	TRISDbits.TRISD8 = 1;
+//    TRISDbits.TRISD9=0;
+//    trig=0;
+//    echo=0;
+//	enableUART1(1, 0, 0, 1, 12);
+//	while (1)
+//	{
+//        trig=0;
+//        __delay_ms(100);
+//        T1CONbits.TON = 1;
+//        trig=1;
+//        __delay_us(5);
+//        trig=0;
+//        while(echo==0) TMR3 = 0;
+//        while(echo==1) ;
+//        time2 = TMR3;
+//        __delay_ms(100);
+//		T1CONbits.TON = 0;
+//		dis = ((double)time2*340*100/62500);
+//        time2=0;
+//        printf("Distance: %.1f cm\n\r", dis);
+//		Lcd_Clear();
+//		Lcd_Set_Cursor(1, 1);
+//		Lcd_Write_String(led);
+//		sprintf(led, "Distance: %.1f cm", dis);
+//		__delay_ms(200);
+//	}
+//}
