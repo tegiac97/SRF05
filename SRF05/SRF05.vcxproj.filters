@@ -29,5 +29,8 @@
     <ClInclude Include="uart.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lcd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

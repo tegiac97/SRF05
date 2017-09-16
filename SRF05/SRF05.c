@@ -44,14 +44,15 @@
 #define echo PORTDbits.RD8
 #include <xc.h>
 
-
+#include"lcd.h"
 #include<p30f6010a.h>
 #include<libpic30.h>
 #include<stdio.h>
 #include"uart.h"
 
 unsigned int time1=0,time2=0;
-float dis;
+double dis;
+char led[30];
 
 
 void initTimer() {
@@ -62,6 +63,9 @@ void initTimer() {
 	T3CONbits.TON = 1;
 }
 int main() {
+	unsigned int a;
+	TRISD = 0x00;
+	Lcd_Init();
 	initTimer();
 	TRISDbits.TRISD8 = 1;
     TRISDbits.TRISD9=0;
@@ -81,9 +85,13 @@ int main() {
         time2 = TMR3;
         __delay_ms(100);
 		T1CONbits.TON = 0;
-		dis = ((float)time2*340*100/62500);
+		dis = ((double)time2*340*100/62500);
         time2=0;
-        printf("Dis: %.0f cm\n\r", dis);
+        printf("Distance: %.1f cm\n\r", dis);
+		Lcd_Clear();
+		Lcd_Set_Cursor(1, 1);
+		Lcd_Write_String(led);
+		sprintf(led, "Distance: %.1f cm", dis);
 		__delay_ms(200);
 	}
 }
