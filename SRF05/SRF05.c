@@ -1,3 +1,6 @@
+//DO NOT EDIT THIS SOURCE CODE
+
+
 // DSPIC30F6010A Configuration Bit Settings
 // 'C' source line config statements
 // FOSC
@@ -39,70 +42,70 @@
 
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
+	
 #define FCY 2000000UL
-#define trig1 _LATD1
-#define echo1 _RD0
-#define trig2 _LATD3
-#define echo2 _RD2
-#define trig3 _LATD5
-#define echo3 _RD4
+#define trig1 _LATD9
+#define echo1 _RD8
+#define trig2 _LATD11
+#define echo2 _RD10
+#define trig3 _LATD13
+#define echo3 _RD12
+#define echo4 _RD14
+#define trig4 _LATD15
+#define echo5 _RC1
+#define trig5 _LATC3
+
 
 #include<stdio.h>
-#include <xc.h>
+#include<xc.h>
 #include<p30f6010a.h>
 #include<libpic30.h>
-#include"uart.h"
 
 unsigned int time = 0;
 float dis;
 
-//float distance(unsigned trig, unsigned echo) {
-//	printf("Start function\n");
-//	float dis;
-//	int time = 0;
-//	trig = 0; printf("trig=0");
-//	__delay_ms(100);
-//	T1CONbits.TON = 1; 
-//	trig = 1; printf("trig=1");
-//	__delay_us(5);
-//	trig = 0;
-//	while (echo == 0) TMR3 = 0;
-//	while (echo == 1);
-//	time = TMR3;
-//	__delay_ms(100);
-//	T1CONbits.TON = 0;
-//	dis = ((float)time * 340 * 100 / 62500);
-//	time = 0;
-//	return dis;
-//}
-
 void initTimer() {
-	T3CON = 0;
-	T3CONbits.TCKPS = 10;
-	PR3 = 20000;
-	IEC0bits.T3IE = 1;
-	T3CONbits.TON = 1;
+	T3CON = 0;								//reset timer 3 ve 0
+	T3CONbits.TCKPS = 10;					//Timer Input Clock Prescale Select		11 = 1:256 prescale value	10 = 1:64 prescale value		01 = 1 : 8 prescale value		00 = 1 : 1 prescale value
+	PR3 = 20000;							//Timer3 Period Register
+	//IEC0bits.T3IE = 1;
+	T3CONbits.TON = 1;						//Bat timer 3
 }
+
+void UART_Init() {
+	U1BRG = 12;
+	U1MODEbits.UARTEN = 1;
+}
+
 int main() {
 	initTimer();
-	_TRISD0 = 1;
-	_TRISD1 = 0;
-	_TRISD2 = 1;
-	_TRISD3 = 0;
-	_TRISD4 = 1;
-	_TRISD5 = 0;
+	UART_Init();
+	_TRISD8 = 1;
+	_TRISD9 = 0;
+	_TRISD10 = 1;
+	_TRISD11 = 0;
+	_TRISD12 = 1;
+	_TRISD13 = 0;
+	_TRISD14 = 1;
+	_TRISD15 = 0;
+	_TRISC1 = 1;
+	_TRISC3 = 0;
 	trig1 = 0;
 	echo1 = 0;
 	trig2 = 0;
 	echo2 = 0;
 	trig3 = 0;
 	echo3 = 0;
-	enableUART1(1, 0, 0, 1, 12);
+	trig4 = 0;
+	echo4 = 0;
+	trig5 = 0;
+	echo5 = 0;
+	
 	while (1)
 	{
 		trig1 = 0;
 		__delay_ms(100);
-		T1CONbits.TON = 1;							//Enable timer
+		T3CONbits.TON = 1;							//Enable timer
 		trig1 = 1;									//Bat dau phat song
 		__delay_us(5);								//Phat trong 5us
 		trig1 = 0;
@@ -110,10 +113,10 @@ int main() {
 		while (echo1 == 1);
 		time = TMR3;								//Doc gia tri tren thanh ghi TMR3
 		__delay_ms(100);
-		T1CONbits.TON = 0;							//Tat timer
+		T3CONbits.TON = 0;							//Tat timer
 		dis = ((float)time * 340 * 100 / 62500);
 		time = 0;
-		printf("Dis1: %.0f cm\t\t", dis);
+		printf("Dis1: %.0f cm\t", dis);
 		//__delay_ms(200);
 
 
@@ -122,7 +125,7 @@ int main() {
 
 		trig2 = 0;
 		__delay_ms(100);
-		T1CONbits.TON = 1;
+		T3CONbits.TON = 1;
 		trig2 = 1;
 		__delay_us(5);
 		trig2 = 0;
@@ -130,10 +133,10 @@ int main() {
 		while (echo2 == 1);
 		time = TMR3;
 		__delay_ms(100);
-		T1CONbits.TON = 0;
+		T3CONbits.TON = 0;
 		dis = ((float)time * 340 * 100 / 62500);
 		time = 0;
-		printf("Dis2: %.0f cm\t\t", dis);
+		printf("Dis2: %.0f cm\t", dis);
 		//__delay_ms(200);
 
 
@@ -142,7 +145,7 @@ int main() {
 
 		trig3 = 0;
 		__delay_ms(100);
-		T1CONbits.TON = 1;
+		T3CONbits.TON = 1;
 		trig3 = 1;
 		__delay_us(5);
 		trig3 = 0;
@@ -150,16 +153,46 @@ int main() {
 		while (echo3 == 1);
 		time = TMR3;
 		__delay_ms(100);
-		T1CONbits.TON = 0;
+		T3CONbits.TON = 0;
 		dis = ((float)time * 340 * 100 / 62500);
 		time = 0;
-		printf("Dis3: %.0f cm\n\r", dis);
+		printf("Dis3: %.0f cm\t", dis);
 		__delay_ms(100);
-	}
-	while (1) {
-		float dis;
-		dis = distance(trig1, echo1);
-		printf("Dis= %.0f cm\t\t", dis);
-		__delay32(100);
+
+
+
+		trig4 = 0;
+		__delay_ms(100);
+		T3CONbits.TON = 1;
+		trig4 = 1;
+		__delay_us(5);
+		trig4 = 0;
+		while (echo4 == 0) TMR3 = 0;
+		while (echo4 == 1);
+		time = TMR3;
+		__delay_ms(100);
+		T3CONbits.TON = 0;
+		dis = ((float)time * 340 * 100 / 62500);
+		time = 0;
+		printf("Dis4: %.0f cm\t", dis);
+
+
+
+
+		trig5 = 0;
+		__delay_ms(100);
+		T3CONbits.TON = 1;
+		trig5 = 1;
+		__delay_us(5);
+		trig5 = 0;
+		while (echo5 == 0) TMR3 = 0;
+		while (echo5 == 1);
+		time = TMR3;
+		__delay_ms(100);
+		T3CONbits.TON = 0;
+		dis = ((float)time * 340 * 100 / 62500);
+		time = 0;
+		printf("Dis5: %.0f cm", dis);
+		printf("\n\r");
 	}
 }
